@@ -6,17 +6,18 @@ class ServerThread implements Runnable{
 	private WaitingServer server=null;
 	DataInputStream input=null;
 	DataOutputStream output=null;
-	String name=null;
+	String nume=null;
 	private volatile Thread thread=null;
 	
 	ServerThread(Socket _client,WaitingServer _server){
 		client=_client;
 		server=_server;
 		open();
+		nume=client.getRemoteSocketAddress().toString();
 		
 	}
 	
-	public void open(){
+	private void open(){
 		try {
 			input = new DataInputStream(new 
 			        BufferedInputStream(client.getInputStream()));
@@ -29,11 +30,6 @@ class ServerThread implements Runnable{
 		}
 	}
 	
-	public void setName(String _name){ 
-		name=_name;
-		System.out.println("Userul " +name+ " s-a alaturat distractiei");
-		send("Te numesti: "+ name);
-	}
 	
 	public void chatAccepted(){
 		thread=new Thread(this);
@@ -42,11 +38,12 @@ class ServerThread implements Runnable{
 
 	
 	public void run(){
+		askForAlias();
 		while (thread!=null){
 			 try {
-				server.manage(input.readUTF(),name);
+				server.manage(input.readUTF(),nume);
 			} catch (IOException e) {
-				server.remove(name);
+				server.remove(nume);
 				//System.out.println(name);
 			}
 		 }
@@ -54,7 +51,7 @@ class ServerThread implements Runnable{
 	
 	public void stop(){
 		thread=null;
-		System.out.println("Userul "+name+" s-a deconectat");
+		System.out.println("Userul "+nume+" s-a deconectat");
 			try {
 		input.close();
 		output.close();
@@ -62,9 +59,21 @@ class ServerThread implements Runnable{
 		
 	}
 	
-	public String askForAlias()throws IOException{
-		String alias=input.readUTF();
-		return alias.trim();
+	private void askForAlias(){
+		try {
+			//cer alias
+			while(server.alias.containsKey(nume=input.readUTF().trim()))
+				send("Alias ocupat");
+			server.alias.put(nume,this);
+			System.out.println("Userul " +nume+ " s-a alaturat distractiei");
+			send("Te numesti: "+ nume);
+		} catch (IOException e) {
+			System.out.println("cineva nu si-a putut alege alias");
+			stop();
+			server.clientiConectati--;
+			//daca err -> deconectam clientul 
+		}
+		
 	}
 	
 	public void send(String message){

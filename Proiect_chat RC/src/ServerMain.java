@@ -42,22 +42,8 @@ class WaitingServer implements Runnable{
 	public synchronized void insert(Socket client){
 		if(clientiConectati< MaxClienti){
 			ServerThread clientNou=new ServerThread(client,this);
-			try {
-				//cer alias
-				String nume;
-				while(alias.containsKey(nume= clientNou.askForAlias() ))
-					clientNou.send("Alias ocupat");
-				clientNou.setName(nume);
-				clientNou.chatAccepted();
-				alias.put(nume,clientNou);
-			} catch (IOException e) {
-				System.out.println("cineva nu si-a putut alege alias");
-				clientNou.stop();
-				clientNou=null;
-				clientiConectati--;
-				//daca err -> deconectam clientul 
-			}
-			
+			clientNou.chatAccepted();
+			clientiConectati++;
 		}
 		else{
 			System.out.println("Serverul suporta deja nr maxim de clienti");
@@ -86,11 +72,9 @@ class WaitingServer implements Runnable{
 	
 	public void manage(String message,String sender){
 		if(message.equals("QUIT")){
-			if(alias.containsKey(sender)){
-				alias.get(sender).send("ok, te-am deconectat");
+				alias.get(sender).send("SERVER: ok, te-am deconectat");
 				alias.get(sender).stop();
 				alias.remove(sender);
-			}
 		}
 		else if(message.equals("LIST")){
 			String lista="";
@@ -106,7 +90,7 @@ class WaitingServer implements Runnable{
 			else{
 				ServerThread aux=alias.get(sender);
 				alias.remove(sender);
-				aux.name=newName;
+				aux.nume=newName;
 				alias.put(newName, aux);
 				System.out.println("Userul "+ sender+" rebotezat cu aliasul "+ newName);
 			}
