@@ -88,7 +88,7 @@ class WaitingServer implements Runnable{
 			String lista="";
 			Enumeration<String> clienti=alias.keys();
 			while(clienti.hasMoreElements())
-				lista+=clienti.nextElement()+"\n";
+				lista+=clienti.nextElement()+" , ";
 			sendMessage(lista,"LISTA USERi concetati",sender);	
 		}
 		else if(message.startsWith("NICK ")){
