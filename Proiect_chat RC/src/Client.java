@@ -8,7 +8,7 @@ class ClientMain{
 	private static DataInputStream remoteInput=null;
 	private static DataOutputStream remoteOutput=null;
 	private volatile static Boolean running=true;
-	private static Writer demon=null;
+	//private static Writer demon=null;
 	
 	public static void main(String[] args){
 		console = new Scanner(System.in);
@@ -28,20 +28,21 @@ class ClientMain{
 		try {
 			server=new Socket(adresa,port);
 			openComm();
-			demon=new Writer(remoteOutput);
+			//demon=
+			new Writer(remoteOutput);
 			//demon.start()
 			
-			//localOutput -remoteInput
+			//remoteInput - localOutput 
 			String vorbe="";
-			do if(running){
+			while(running ){
 				try {
 					vorbe=remoteInput.readUTF();
+					print(vorbe);
 				} catch (IOException e) {
+					System.out.println("Pierdut legatura cu serverul..");
 					stop();
 				}
-				System.out.println(vorbe);
-			}while(!vorbe.startsWith("SERVER: ok, te-am deconectat")
-					&& !vorbe.startsWith("SERVER: inchidem pravalia"));
+			}
 			/*
 			if(demon!=null)
 				demon.stop();
@@ -51,6 +52,14 @@ class ClientMain{
 		} catch (IOException e) {
 			System.out.println("eroare "+ e.getMessage());
 		}
+	}
+	
+	private static void print(String vorbe){
+		System.out.println(vorbe);
+		if(vorbe.startsWith("SERVER: ok, te-am deconectat"))
+				stop();
+		if(vorbe.startsWith("SERVER: inchidem pravalia"))
+				stop();
 	}
 	
 	private static void openComm(){
@@ -67,11 +76,13 @@ class ClientMain{
 		running=false;
 		try {
 		if(remoteInput!=null)
-			remoteInput.close();	
+			remoteInput.close();
+		} catch (IOException e) {}
+		try{
 		if(remoteOutput!=null)
 			remoteOutput.close();
 		} catch (IOException e) {}
-		demon=null;
+		//demon=null;
 	}
 }
 
@@ -109,7 +120,7 @@ class Writer implements Runnable{
 		if(listening!=null){
 			listening.interrupt();
 			listening=null;
-			ClientMain.stop();
 		}
+		ClientMain.stop();
 	}
 }
