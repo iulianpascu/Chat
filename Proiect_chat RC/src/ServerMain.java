@@ -70,6 +70,14 @@ class WaitingServer implements Runnable{
 		}
 	}
 	
+	public boolean keyWord(String s){
+		String[] cuvRezervate={"SERVER","QUIT","MSG","NICK","ALL","LIST"};
+		for(int i=0;i <cuvRezervate.length; i++)
+			if(cuvRezervate[i].equalsIgnoreCase(s.trim()))
+				return true;
+		return false;
+	}
+	
 	public void manage(String message,String sender){
 		if(message.equals("QUIT")){
 				alias.get(sender).send("SERVER: ok, te-am deconectat");
@@ -85,7 +93,7 @@ class WaitingServer implements Runnable{
 		}
 		else if(message.startsWith("NICK ")){
 			String newName=message.substring(4).trim();
-			if(alias.containsKey(newName))
+			if(alias.containsKey(newName) || keyWord(newName))
 				sendMessage("Alias ocupat","SERVER",sender);
 			else{
 				ServerThread aux=alias.get(sender);

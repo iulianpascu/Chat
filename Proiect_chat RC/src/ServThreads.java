@@ -13,8 +13,7 @@ class ServerThread implements Runnable{
 		client=_client;
 		server=_server;
 		open();
-		nume=client.getRemoteSocketAddress().toString();
-		
+		nume=client.getRemoteSocketAddress().toString();	
 	}
 	
 	private void open(){
@@ -62,11 +61,14 @@ class ServerThread implements Runnable{
 	private void askForAlias(){
 		try {
 			//cer alias
-			while(server.alias.containsKey(nume=input.readUTF().trim()))
+			String newName;
+			while(server.alias.containsKey(newName=input.readUTF().trim()) 
+					||server.keyWord(newName))
 				send("Alias ocupat");
-			server.alias.put(nume,this);
-			System.out.println("Userul " +nume+ " s-a alaturat distractiei");
-			send("Te numesti: "+ nume);
+			server.alias.put(newName,this);
+			System.out.println("Userul " +newName+ " s-a alaturat distractiei");
+			send("Te numesti: "+ newName);
+			nume=newName;
 		} catch (IOException e) {
 			System.out.println("cineva nu si-a putut alege alias");
 			stop();
