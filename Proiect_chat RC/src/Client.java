@@ -27,6 +27,7 @@ class ClientMain{
 		
 		try {
 			server=new Socket(adresa,port);
+			System.out.println("Sunteti conectati la "+adresa + " "+port);
 			openComm();
 			//demon=
 			new Writer(remoteOutput);

@@ -11,7 +11,7 @@ class WaitingServer implements Runnable{
 	WaitingServer(int port){
 		try {
 			mainSocket=new ServerSocket(port);
-			System.out.println("serverul e deschis. va puteti conecta");
+			System.out.println("serverul e deschis pe portul " +port+". va puteti conecta");
 			
 		} catch (IOException e) {
 			System.out.println("nu am putut crea serverul: "+ e.getMessage());
@@ -123,12 +123,19 @@ class WaitingServer implements Runnable{
 
 class MainServer{
 	
-	public static void main(String[] string) throws IOException{
+	public static void main(String[] args) throws IOException{
 		WaitingServer mainWaitingServer=null;
-		
+		int port;
 		Scanner console=new Scanner(System.in);
-		System.out.println("introduceti portul");
-		mainWaitingServer=new WaitingServer(console.nextInt());
+		if( args.length !=1){
+			System.out.println("introduceti portul");
+			port=console.nextInt();
+		}
+		else{
+			port=Integer.parseInt(args[0]);
+		}
+		
+		mainWaitingServer=new WaitingServer(port);
 		
 		Thread acceptingThread=new Thread(mainWaitingServer);
 		acceptingThread.setDaemon(true);
@@ -139,7 +146,7 @@ class MainServer{
 		while(!s.equals("QUIT"))
 			s=console.next();
 		System.out.println("Serverul a fost inchis");
-		
+		console.close();
 		//mainServer.sendShutDownMessageToClients();
 		mainWaitingServer.sendMessage("inchidem pravalia ;)", "SERVER", "ALL");
 		
